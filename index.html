@@ -6,13 +6,16 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Báscula Pollos" />
-  <title>Báscula y Venta de Pollos - AvícolaSOFT Enterprise</title>
+  <title>Iniciar Sesión - AvícolaSOFT Enterprise</title>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
   <style>
     :root {
       --primary: #1e3c72;
       --primary-light: #2a5298;
+      --navy-dark: #14233c;
       --accent: #28a745;
       --info: #17a2b8;
+      --whatsapp: #1ebe5d;
       --danger: #c0392b;
       --secondary: #6c757d;
       --bg: #f5f7fa;
@@ -31,21 +34,137 @@
       color: var(--text);
     }
 
+    /* ===================================================== */
+    /* PANTALLA DE LOGIN                                     */
+    /* ===================================================== */
+    #loginScreen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      background: var(--bg);
+    }
+
+    #loginScreen.hidden { display: none; }
+
+    .login-card {
+      width: 100%;
+      max-width: 820px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      box-shadow: 0 10px 30px rgba(20, 35, 60, 0.12);
+    }
+
+    .login-left {
+      background: var(--navy-dark);
+      color: #fff;
+      padding: 36px 28px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .login-left h1 {
+      margin: 0 0 8px 0;
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+
+    .login-brand-sub {
+      font-size: 15px;
+      font-weight: 700;
+      color: #5dade2;
+      margin-bottom: 6px;
+    }
+
+    .login-farm-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: #a3e4d7;
+      margin-bottom: 14px;
+    }
+
+    .login-left p {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.5;
+      color: #b8cde0;
+    }
+
+    .login-right {
+      padding: 32px 30px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .login-title {
+      margin: 0 0 4px 0;
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--navy-dark);
+    }
+
+    .login-subtitle {
+      margin: 0 0 20px 0;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .login-field { margin-bottom: 14px; }
+
+    .login-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .login-footer {
+      margin-top: 22px;
+      text-align: center;
+      font-size: 12px;
+      font-style: italic;
+      color: var(--muted);
+    }
+
+    /* ===================================================== */
+    /* APP PRINCIPAL (BLOQUEADA HASTA INICIAR SESIÓN)        */
+    /* ===================================================== */
+    #appShell { display: none; padding-bottom: 24px; }
+    #appShell.authenticated { display: block; }
+
     header {
       background: var(--primary);
       color: #fff;
-      padding: 14px 20px;
+      padding: 12px 18px;
       display: flex;
       flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
+      gap: 10px;
       position: sticky;
       top: 0;
-      z-index: 10;
+      z-index: 20;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.12);
     }
 
-    .brand { font-size: 17px; font-weight: 700; }
+    .header-left { display: flex; flex-direction: column; gap: 2px; }
+    .brand { font-size: 16px; font-weight: 700; line-height: 1.25; }
+    .user-badge { font-size: 12px; color: #d6e4ff; font-weight: 600; }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
 
     .tabs { display: flex; gap: 8px; }
 
@@ -53,22 +172,37 @@
       border: 1px solid rgba(255,255,255,0.35);
       background: transparent;
       color: #fff;
-      padding: 9px 16px;
+      padding: 9px 14px;
+      min-height: 40px;
       border-radius: 8px;
       font-weight: 700;
       font-size: 14px;
       cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      white-space: nowrap;
     }
 
     .tab-btn.active {
       background: #fff;
       color: var(--primary);
+      border-color: #fff;
+    }
+
+    .btn-logout {
+      background: rgba(192, 57, 43, 0.92);
+      color: #fff;
+      min-height: 38px;
+      padding: 8px 12px;
+      font-size: 13px;
     }
 
     main {
       max-width: 1280px;
       margin: 0 auto;
-      padding: 18px;
+      padding: 16px;
     }
 
     .view { display: none; }
@@ -78,8 +212,9 @@
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 16px;
+      padding: 15px;
+      margin-bottom: 14px;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
     }
 
     .card-title {
@@ -91,22 +226,22 @@
 
     .form-grid-4 {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 12px;
       margin-bottom: 12px;
     }
 
     .form-grid-3 {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 12px;
     }
 
     .grid-2 {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
-      gap: 16px;
-      margin-bottom: 16px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 14px;
     }
 
     label {
@@ -119,10 +254,11 @@
 
     input, select {
       width: 100%;
+      min-height: 44px;
       padding: 10px 12px;
       border: 1px solid var(--border);
       border-radius: 8px;
-      font-size: 15px;
+      font-size: 16px;
       background: #fff;
       color: var(--text);
     }
@@ -136,11 +272,12 @@
       font-size: 13px;
       font-style: italic;
       font-weight: 600;
+      line-height: 1.4;
     }
 
     .inline-tara {
       display: grid;
-      grid-template-columns: 100px 1fr auto;
+      grid-template-columns: 95px 1fr auto;
       gap: 8px;
       align-items: end;
       margin-bottom: 12px;
@@ -148,7 +285,7 @@
 
     .inline-pesaje {
       display: grid;
-      grid-template-columns: 85px 95px 1fr auto;
+      grid-template-columns: 80px 90px 1fr auto;
       gap: 8px;
       align-items: end;
       margin-bottom: 12px;
@@ -158,9 +295,15 @@
       border: none;
       border-radius: 8px;
       padding: 10px 14px;
+      min-height: 44px;
       font-size: 14px;
       font-weight: 700;
       cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      white-space: nowrap;
     }
 
     button:disabled { opacity: 0.55; cursor: not-allowed; }
@@ -168,21 +311,36 @@
     .btn-primary { background: var(--primary-light); color: #fff; }
     .btn-success { background: var(--accent); color: #fff; }
     .btn-info { background: var(--info); color: #fff; }
+    .btn-whatsapp { background: var(--whatsapp); color: #fff; }
     .btn-secondary { background: var(--secondary); color: #fff; }
-    .btn-danger { background: var(--danger); color: #fff; padding: 6px 10px; font-size: 12px; }
+    .btn-danger {
+      background: var(--danger);
+      color: #fff;
+      padding: 6px 10px;
+      min-height: 36px;
+      font-size: 12px;
+    }
 
-    .table-wrap { overflow-x: auto; }
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
 
     table {
       width: 100%;
+      min-width: 680px;
       border-collapse: collapse;
       font-size: 14px;
     }
+
+    .grid-2 table { min-width: 280px; }
 
     th, td {
       border-bottom: 1px solid var(--border);
       padding: 10px 8px;
       text-align: left;
+      vertical-align: middle;
     }
 
     th {
@@ -193,16 +351,16 @@
 
     .summary-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      grid-template-columns: repeat(5, minmax(0, 1fr));
       gap: 12px;
       align-items: center;
     }
 
-    .stat-label { font-size: 12px; color: var(--muted); font-weight: 700; }
+    .stat-label { font-size: 12px; color: var(--muted); font-weight: 700; line-height: 1.3; }
     .stat-val { font-size: 17px; font-weight: 800; color: var(--text); margin-top: 2px; }
     .stat-val.red { color: var(--danger); }
-    .stat-val.green { color: var(--accent); font-size: 19px; }
-    .stat-val.total { color: var(--primary); font-size: 22px; }
+    .stat-val.green { color: var(--accent); font-size: 18px; }
+    .stat-val.total { color: var(--primary); font-size: 21px; }
 
     .footer-actions {
       display: flex;
@@ -225,9 +383,14 @@
       font-weight: 700;
       font-size: 15px;
       cursor: pointer;
+      min-height: 40px;
     }
 
-    .check-inline input { width: 18px; height: 18px; }
+    .check-inline input {
+      width: 20px;
+      height: 20px;
+      min-height: 20px;
+    }
 
     .badge-credito { color: var(--danger); font-weight: 700; }
     .badge-contado { color: var(--accent); font-weight: 700; }
@@ -239,11 +402,11 @@
       margin-bottom: 14px;
     }
 
-    .search-bar input { flex: 1; min-width: 240px; }
+    .search-bar input { flex: 1 1 220px; }
 
     .hist-summary {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 12px;
       background: #eef3f9;
       padding: 14px;
@@ -251,226 +414,423 @@
       margin-bottom: 14px;
     }
 
+    @media (max-width: 1024px) {
+      .form-grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .grid-2 { grid-template-columns: 1fr; }
+      .summary-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 768px) {
+      .login-card { grid-template-columns: 1fr; }
+      .login-left { padding: 24px 20px; }
+      .login-right { padding: 24px 20px; }
+
+      #appShell.authenticated { padding-bottom: 84px; }
+
+      header { padding: 10px 14px; }
+      .header-left { width: 100%; text-align: center; }
+      .header-right { width: 100%; justify-content: center; }
+
+      .tabs {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: var(--primary);
+        padding: 8px 10px;
+        border-top: 1px solid rgba(255,255,255,0.2);
+        z-index: 30;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 6px;
+        box-shadow: 0 -2px 10px rgba(0,0,0,0.16);
+      }
+
+      .tab-btn {
+        padding: 8px 6px;
+        min-height: 44px;
+        font-size: 12px;
+      }
+
+      main { padding: 12px; }
+      .card { padding: 13px; border-radius: 10px; }
+
+      .form-grid-4,
+      .form-grid-3,
+      .grid-2,
+      .hist-summary {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+
+      .inline-tara { grid-template-columns: 1fr 1fr; }
+      .inline-tara button { grid-column: 1 / -1; width: 100%; }
+
+      .inline-pesaje { grid-template-columns: 1fr 1fr; }
+      .inline-pesaje > div:nth-child(3) { grid-column: 1 / -1; }
+      .inline-pesaje button { grid-column: 1 / -1; width: 100%; }
+
+      .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+      .summary-grid > div:last-child {
+        grid-column: 1 / -1;
+        background: #eef3f9;
+        padding: 10px 12px;
+        border-radius: 8px;
+      }
+
+      .footer-actions { flex-direction: column; align-items: stretch; }
+      .right-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+      .right-actions button:last-child { grid-column: 1 / -1; }
+      .search-bar button { flex: 1 1 auto; }
+    }
+
     @media print {
-      header, .tabs, .footer-actions, .inline-tara, .inline-pesaje, .btn-danger, .search-bar {
+      #loginScreen, header, .tabs, .btn-logout, .footer-actions, .inline-tara, .inline-pesaje, .btn-danger, .search-bar {
         display: none !important;
       }
       body { background: #fff; }
+      #appShell.authenticated { padding-bottom: 0; }
       .card { border: none; box-shadow: none; padding: 8px 0; }
     }
   </style>
 </head>
 <body>
-  <header>
-    <div class="brand">⚖️ Báscula y Venta de Pollos - AvícolaSOFT Enterprise</div>
-    <div class="tabs">
-      <button class="tab-btn active" id="tabPesaje" onclick="cambiarVista('pesaje')">⚖️ Báscula / Venta</button>
-      <button class="tab-btn" id="tabHistorial" onclick="cambiarVista('historial')">📊 Historial</button>
+  <!-- ===================================================== -->
+  <!-- PANTALLA DE INICIO DE SESIÓN (BLOQUEA LA APP)         -->
+  <!-- ===================================================== -->
+  <section id="loginScreen">
+    <div class="login-card">
+      <div class="login-left">
+        <h1>BIENVENIDO</h1>
+        <div class="login-brand-sub">AvícolaSOFT Enterprise</div>
+        <div class="login-farm-name" id="lblGranjaLogin">🏡 Granja Felipe veloz</div>
+        <p>Plataforma integral de administración pecuaria y control financiero en tiempo real.</p>
+      </div>
+
+      <div class="login-right">
+        <div>
+          <h2 class="login-title">Iniciar Sesión</h2>
+          <p class="login-subtitle">Ingrese sus credenciales para acceder al sistema</p>
+
+          <form id="formLogin" onsubmit="manejarLogin(event)">
+            <div class="login-field">
+              <label for="txtUsuarioLogin">Usuario o Correo</label>
+              <input type="text" id="txtUsuarioLogin" autocomplete="username" placeholder="Usuario o correo..." required />
+            </div>
+
+            <div class="login-field">
+              <label for="txtPasswordLogin">Contraseña</label>
+              <input type="password" id="txtPasswordLogin" autocomplete="current-password" placeholder="••••••••" required />
+            </div>
+
+            <div class="login-buttons">
+              <button type="submit" class="btn-primary" id="btnIngresar">🔐 Ingresar</button>
+              <button type="button" class="btn-danger" onclick="limpiarLogin()">🧹 Limpiar</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="login-footer">Desarrollado por López Technology</div>
+      </div>
     </div>
-  </header>
+  </section>
 
-  <main>
-    <!-- VISTA 1: BÁSCULA Y VENTA DE POLLOS -->
-    <section id="viewPesaje" class="view active">
-      <div class="card">
-        <h2 class="card-title">Datos Generales de la Venta</h2>
-
-        <div class="form-grid-4">
-          <div>
-            <label>Cliente / Comprador:</label>
-            <select id="cmbCliente" onchange="verificarDeudaCliente()"></select>
-          </div>
-          <div>
-            <label>Nave / Lote de Origen:</label>
-            <select id="cmbLote" onchange="actualizarCuadreLote()"></select>
-          </div>
-          <div>
-            <label>Precio por Libra (RD$):</label>
-            <input type="number" id="numPrecioLibra" step="0.01" min="0" value="0.00" oninput="recalcularTotales()" />
-          </div>
-          <div>
-            <label>Fecha de Venta:</label>
-            <input type="datetime-local" id="dtpFechaVenta" />
-          </div>
-        </div>
-
-        <div class="form-grid-3">
-          <div>
-            <label>Nº Factura Física:</label>
-            <input type="text" id="txtNumeroFacturaFisica" placeholder="Ej. 000124" />
-          </div>
-          <div>
-            <label>Referencia / Chofer:</label>
-            <input type="text" id="txtReferencia" placeholder="Nombre del chofer o guía..." />
-          </div>
-          <div>
-            <label>Descripción:</label>
-            <input type="text" id="txtDescripcion" placeholder="Detalle o nota adicional de la venta..." />
-          </div>
-        </div>
-
-        <div class="cuadre-box" id="lblCuadreLote">
-          Cuadre del lote: Seleccione un lote para ver peso neto, aves y promedio acumulado.
-        </div>
+  <!-- ===================================================== -->
+  <!-- APLICACIÓN PRINCIPAL                                  -->
+  <!-- ===================================================== -->
+  <div id="appShell">
+    <header>
+      <div class="header-left">
+        <div class="brand" id="lblHeaderGranja">⚖️ Granja Felipe veloz - AvícolaSOFT Enterprise</div>
+        <div class="user-badge" id="lblUsuarioActivo">Sesión activa</div>
       </div>
 
-      <div class="grid-2">
-        <!-- 1. REGISTRO DE TARAS -->
+      <div class="header-right">
+        <nav class="tabs" aria-label="Navegación principal">
+          <button type="button" class="tab-btn active" id="tabPesaje" onclick="cambiarVista('pesaje')">⚖️ Báscula</button>
+          <button type="button" class="tab-btn" id="tabHistorial" onclick="cambiarVista('historial')">📊 Historial</button>
+          <button type="button" class="tab-btn" id="tabClientes" onclick="cambiarVista('clientes')">👥 Clientes</button>
+        </nav>
+        <button type="button" class="btn-logout" onclick="cerrarSesion()">🚪 Salir</button>
+      </div>
+    </header>
+
+    <main>
+      <!-- VISTA 1: BÁSCULA Y VENTA DE POLLOS -->
+      <section id="viewPesaje" class="view active">
         <div class="card">
-          <h2 class="card-title">1. Registro de Taras (Jaulas Vacías)</h2>
-          <div class="inline-tara">
+          <h2 class="card-title">Datos Generales de la Venta</h2>
+
+          <div class="form-grid-4">
             <div>
-              <label>Cant. Jaulas:</label>
-              <input type="number" id="numJaulasTara" min="1" value="1" />
+              <label>Cliente / Comprador:</label>
+              <select id="cmbCliente" onchange="verificarDeudaCliente()"></select>
             </div>
             <div>
-              <label>Peso Tara (Lbs):</label>
-              <input type="number" id="numPesoTara" step="0.01" min="0" placeholder="0.00" />
+              <label>Nave / Lote de Origen:</label>
+              <select id="cmbLote" onchange="actualizarCuadreLote()"></select>
             </div>
-            <button type="button" class="btn-secondary" onclick="agregarTara()">➕ Agregar Tara</button>
+            <div>
+              <label>Precio por Libra (RD$):</label>
+              <input type="number" id="numPrecioLibra" step="0.01" min="0" inputmode="decimal" value="0.00" oninput="recalcularTotales()" />
+            </div>
+            <div>
+              <label>Fecha de Venta:</label>
+              <input type="datetime-local" id="dtpFechaVenta" />
+            </div>
           </div>
 
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Jaulas</th>
-                  <th>Peso Tara (Lbs)</th>
-                  <th>Acción</th>
-                </tr>
-              </thead>
-              <tbody id="tbodyTaras"></tbody>
-            </table>
+          <div class="form-grid-3">
+            <div>
+              <label>Nº Factura Física:</label>
+              <input type="text" id="txtNumeroFacturaFisica" placeholder="Ej. 000124" />
+            </div>
+            <div>
+              <label>Referencia / Chofer:</label>
+              <input type="text" id="txtReferencia" placeholder="Nombre del chofer o guía..." />
+            </div>
+            <div>
+              <label>Descripción:</label>
+              <input type="text" id="txtDescripcion" placeholder="Detalle o nota adicional de la venta..." />
+            </div>
+          </div>
+
+          <div class="cuadre-box" id="lblCuadreLote">
+            Cuadre del lote: Seleccione un lote para ver peso neto, aves y promedio acumulado.
           </div>
         </div>
 
-        <!-- 2. REGISTRO DE PESADAS DE AVES -->
+        <div class="grid-2">
+          <!-- 1. REGISTRO DE TARAS -->
+          <div class="card">
+            <h2 class="card-title">1. Registro de Taras (Jaulas Vacías)</h2>
+            <div class="inline-tara">
+              <div>
+                <label>Cant. Jaulas:</label>
+                <input type="number" id="numJaulasTara" min="1" inputmode="numeric" value="1" />
+              </div>
+              <div>
+                <label>Peso Tara (Lbs):</label>
+                <input type="number" id="numPesoTara" step="0.01" min="0" inputmode="decimal" placeholder="0.00" />
+              </div>
+              <button type="button" class="btn-secondary" onclick="agregarTara()">➕ Agregar Tara</button>
+            </div>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Jaulas</th>
+                    <th>Peso Tara (Lbs)</th>
+                    <th>Acción</th>
+                  </tr>
+                </thead>
+                <tbody id="tbodyTaras"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- 2. REGISTRO DE PESADAS DE AVES -->
+          <div class="card">
+            <h2 class="card-title">2. Registro de Pesadas de Aves</h2>
+            <div class="inline-pesaje">
+              <div>
+                <label>Jaulas:</label>
+                <input type="number" id="numJaulasPesaje" min="1" inputmode="numeric" value="1" />
+              </div>
+              <div>
+                <label>Aves/Jaula:</label>
+                <input type="number" id="numAvesJaula" min="1" inputmode="numeric" value="10" />
+              </div>
+              <div>
+                <label>Peso Bruto (Lbs):</label>
+                <input type="number" id="numPesoBruto" step="0.01" min="0" inputmode="decimal" placeholder="0.00" />
+              </div>
+              <button type="button" class="btn-success" onclick="agregarPesaje()">➕ Agregar Pesaje</button>
+            </div>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Jaulas</th>
+                    <th>Total Aves</th>
+                    <th>Peso Bruto (Lbs)</th>
+                    <th>Acción</th>
+                  </tr>
+                </thead>
+                <tbody id="tbodyPesajes"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. RESUMEN FINANCIERO Y DE PESOS -->
         <div class="card">
-          <h2 class="card-title">2. Registro de Pesadas de Aves</h2>
-          <div class="inline-pesaje">
+          <h2 class="card-title">3. Resumen Financiero y de Pesos</h2>
+          <div class="summary-grid">
             <div>
-              <label>Jaulas:</label>
-              <input type="number" id="numJaulasPesaje" min="1" value="1" />
+              <div class="stat-label">Total Peso Tara:</div>
+              <div class="stat-val red" id="lblTotalPesoTara">0.00 Lbs</div>
             </div>
             <div>
-              <label>Aves/Jaula:</label>
-              <input type="number" id="numAvesJaula" min="1" value="10" />
+              <div class="stat-label">Total Aves:</div>
+              <div class="stat-val" id="lblTotalAves">0 aves</div>
             </div>
             <div>
-              <label>Peso Bruto (Lbs):</label>
-              <input type="number" id="numPesoBruto" step="0.01" min="0" placeholder="0.00" />
+              <div class="stat-label">Peso Bruto Total:</div>
+              <div class="stat-val" id="lblPesoBrutoTotal">0.00 Lbs</div>
             </div>
-            <button type="button" class="btn-success" onclick="agregarPesaje()">➕ Agregar Pesaje</button>
+            <div>
+              <div class="stat-label">Peso Neto Total:</div>
+              <div class="stat-val green" id="lblPesoNetoTotal">0.00 Lbs</div>
+            </div>
+            <div>
+              <div class="stat-label">MONTO TOTAL:</div>
+              <div class="stat-val total" id="lblMontoTotal">$ 0.00</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. ACCIONES Y CRÉDITO -->
+        <div class="card">
+          <div class="footer-actions">
+            <label class="check-inline">
+              <input type="checkbox" id="chkCredito" />
+              <span>Venta a Crédito</span>
+            </label>
+
+            <div class="right-actions">
+              <button type="button" class="btn-secondary" onclick="nuevaVenta()">🆕 Nueva Venta</button>
+              <button type="button" class="btn-info" id="btnDescargarPdf" onclick="descargarFacturaPdf()" disabled>📄 PDF</button>
+              <button type="button" class="btn-whatsapp" id="btnEnviarWhatsapp" onclick="enviarFacturaWhatsapp()" disabled>📲 WhatsApp PDF</button>
+              <button type="button" class="btn-success" id="btnProcesarVenta" onclick="guardarVenta()">✅ Procesar Venta</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VISTA 2: HISTORIAL GENERAL DE VENTAS DE POLLOS -->
+      <section id="viewHistorial" class="view">
+        <div class="card">
+          <h2 class="card-title">📊 Historial Completo de Ventas de Pollos</h2>
+
+          <div class="search-bar">
+            <input type="text" id="txtBuscarHistorial" placeholder="Buscar por Nº factura física, cliente, lote o descripción..." oninput="renderizarHistorial()" />
+            <button type="button" class="btn-secondary" onclick="document.getElementById('txtBuscarHistorial').value=''; renderizarHistorial();">✖ Limpiar</button>
+            <button type="button" class="btn-primary" onclick="cargarHistorial()">🔄 Actualizar</button>
+          </div>
+
+          <div class="hist-summary">
+            <div>
+              <div class="stat-label">TOTAL FACTURAS</div>
+              <div class="stat-val" id="histTotalFacturas">0</div>
+            </div>
+            <div>
+              <div class="stat-label">MONTO GLOBAL ACUMULADO</div>
+              <div class="stat-val green" id="histMontoGlobal">RD$ 0.00</div>
+            </div>
           </div>
 
           <div class="table-wrap">
             <table>
               <thead>
                 <tr>
-                  <th>Jaulas</th>
+                  <th>Fecha y Hora</th>
+                  <th>Factura Física / Ref.</th>
+                  <th>Cliente / Comprador</th>
+                  <th>Lote / Nave</th>
                   <th>Total Aves</th>
-                  <th>Peso Bruto (Lbs)</th>
-                  <th>Acción</th>
+                  <th>Peso Neto (Lbs)</th>
+                  <th>Monto Total (RD$)</th>
+                  <th>Condición</th>
+                  <th>Descripción</th>
+                  <th>Factura</th>
                 </tr>
               </thead>
-              <tbody id="tbodyPesajes"></tbody>
+              <tbody id="tbodyHistorial"></tbody>
             </table>
           </div>
         </div>
-      </div>
+      </section>
 
-      <!-- 3. RESUMEN FINANCIERO Y DE PESOS -->
-      <div class="card">
-        <h2 class="card-title">3. Resumen Financiero y de Pesos</h2>
-        <div class="summary-grid">
-          <div>
-            <div class="stat-label">Total Peso Tara:</div>
-            <div class="stat-val red" id="lblTotalPesoTara">0.00 Lbs</div>
-          </div>
-          <div>
-            <div class="stat-label">Total Aves:</div>
-            <div class="stat-val" id="lblTotalAves">0 aves</div>
-          </div>
-          <div>
-            <div class="stat-label">Peso Bruto Total:</div>
-            <div class="stat-val" id="lblPesoBrutoTotal">0.00 Lbs</div>
-          </div>
-          <div>
-            <div class="stat-label">Peso Neto Total:</div>
-            <div class="stat-val green" id="lblPesoNetoTotal">0.00 Lbs</div>
-          </div>
-          <div>
-            <div class="stat-label">MONTO TOTAL:</div>
-            <div class="stat-val total" id="lblMontoTotal">$ 0.00</div>
-          </div>
-        </div>
-      </div>
+      <!-- VISTA 3: CLIENTES Y CREAR NUEVO CLIENTE -->
+      <section id="viewClientes" class="view">
+        <div class="card">
+          <h2 class="card-title">➕ Crear Nuevo Cliente</h2>
 
-      <!-- 4. ACCIONES Y CRÉDITO -->
-      <div class="card">
-        <div class="footer-actions">
-          <label class="check-inline">
-            <input type="checkbox" id="chkCredito" />
-            <span>Venta a Crédito</span>
-          </label>
-
-          <div class="right-actions">
-            <button type="button" class="btn-secondary" onclick="nuevaVenta()">🆕 Nueva Venta</button>
-            <button type="button" class="btn-info" id="btnImprimirFactura" onclick="imprimirFactura()" disabled>🖨️ Imprimir Factura</button>
-            <button type="button" class="btn-success" id="btnProcesarVenta" onclick="guardarVenta()">✅ Procesar Venta</button>
+          <div class="form-grid-4">
+            <div>
+              <label>Nombre o Razón Social:</label>
+              <input type="text" id="txtNuevoClienteNombre" placeholder="Ej. Comedor Don Pedro" />
+            </div>
+            <div>
+              <label>Teléfono / Cédula / RNC:</label>
+              <input type="text" id="txtNuevoClienteDocumento" placeholder="Ej. 809-555-1234" />
+            </div>
+            <div>
+              <label>Tipo de Tercero:</label>
+              <select id="cmbNuevoClienteTipo">
+                <option value="0" selected>Cliente (0)</option>
+                <option value="1">Proveedor (1)</option>
+                <option value="2">Ambos (2)</option>
+              </select>
+            </div>
+            <div>
+              <label>Saldo Inicial (RD$):</label>
+              <input type="number" id="numNuevoClienteSaldo" step="0.01" inputmode="decimal" value="0.00" />
+            </div>
           </div>
-        </div>
-      </div>
-    </section>
 
-    <!-- VISTA 2: HISTORIAL GENERAL DE VENTAS DE POLLOS -->
-    <section id="viewHistorial" class="view">
-      <div class="card">
-        <h2 class="card-title">📊 Historial Completo de Ventas de Pollos</h2>
-
-        <div class="search-bar">
-          <input type="text" id="txtBuscarHistorial" placeholder="Buscar por Nº factura física, cliente, lote o descripción..." oninput="renderizarHistorial()" />
-          <button type="button" class="btn-secondary" onclick="document.getElementById('txtBuscarHistorial').value=''; renderizarHistorial();">✖ Limpiar</button>
-          <button type="button" class="btn-primary" onclick="cargarHistorial()">🔄 Actualizar</button>
-        </div>
-
-        <div class="hist-summary">
-          <div>
-            <div class="stat-label">TOTAL FACTURAS</div>
-            <div class="stat-val" id="histTotalFacturas">0</div>
-          </div>
-          <div>
-            <div class="stat-label">MONTO GLOBAL ACUMULADO</div>
-            <div class="stat-val green" id="histMontoGlobal">RD$ 0.00</div>
+          <div class="footer-actions">
+            <div class="stat-label">Tip: si colocas el teléfono en el campo documento/teléfono, se usará para abrir su chat directo en WhatsApp.</div>
+            <div class="right-actions">
+              <button type="button" class="btn-secondary" onclick="limpiarFormularioCliente()">Limpiar</button>
+              <button type="button" class="btn-success" id="btnGuardarCliente" onclick="guardarNuevoCliente()">💾 Guardar Cliente</button>
+            </div>
           </div>
         </div>
 
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Fecha y Hora</th>
-                <th>Factura Física / Ref.</th>
-                <th>Cliente / Comprador</th>
-                <th>Lote / Nave</th>
-                <th>Total Aves</th>
-                <th>Peso Neto (Lbs)</th>
-                <th>Monto Total (RD$)</th>
-                <th>Condición</th>
-                <th>Descripción</th>
-              </tr>
-            </thead>
-            <tbody id="tbodyHistorial"></tbody>
-          </table>
+        <div class="card">
+          <h2 class="card-title">👥 Listado de Clientes Registrados</h2>
+
+          <div class="search-bar">
+            <input type="text" id="txtBuscarCliente" placeholder="Buscar cliente por nombre o documento..." oninput="renderizarClientes()" />
+            <button type="button" class="btn-secondary" onclick="document.getElementById('txtBuscarCliente').value=''; renderizarClientes();">✖ Limpiar</button>
+            <button type="button" class="btn-primary" onclick="cargarClientesListado()">🔄 Actualizar</button>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Nombre / Comprador</th>
+                  <th>Documento / Teléfono</th>
+                  <th>Tipo</th>
+                  <th>Saldo Actual (RD$)</th>
+                  <th>Acción</th>
+                </tr>
+              </thead>
+              <tbody id="tbodyClientes"></tbody>
+            </table>
+          </div>
         </div>
-      </div>
-    </section>
-  </main>
+      </section>
+    </main>
+  </div>
 
   <script>
     const CONFIG = {
+      nombreGranja: "Granja Felipe veloz",
       supabaseUrl: "https://ssluldkqseaukoibggvn.supabase.co",
       supabasePublishableKey: "sb_publishable_bmlnUO_swVEuqb9uaSb6jA_DbiNlc7h",
+      usuariosTabla: "AspNetUsers",
+      columnasUsuario: {
+        userName: "UserName",
+        email: "Email",
+        passwordHash: "PasswordHash"
+      },
       tablas: {
         ventas: "VentaPollosPesajes",
         detalleTaras: "VentaPollosPesajeDetalleTaras",
@@ -480,6 +840,9 @@
       }
     };
 
+    const SESSION_KEY = "avicolasoft_db_session";
+
+    let usuarioActual = null;
     let listaTaras = [];
     let listaPesajes = [];
     let listaClientes = [];
@@ -488,6 +851,187 @@
     let lotesMap = {};
     let ventasCache = [];
     let ultimaVentaGuardada = null;
+
+    function limpiarLogin() {
+      document.getElementById("txtUsuarioLogin").value = "";
+      document.getElementById("txtPasswordLogin").value = "";
+    }
+
+    async function hashPasswordSha256Base64(password) {
+      const data = new TextEncoder().encode(password);
+      const digest = await crypto.subtle.digest("SHA-256", data);
+      const bytes = new Uint8Array(digest);
+      let binary = "";
+      for (let i = 0; i < bytes.length; i++) {
+        binary += String.fromCharCode(bytes[i]);
+      }
+      return btoa(binary);
+    }
+
+    function readUInt32BE(bytes, offset) {
+      return (
+        ((bytes[offset] << 24) >>> 0) |
+        (bytes[offset + 1] << 16) |
+        (bytes[offset + 2] << 8) |
+        bytes[offset + 3]
+      ) >>> 0;
+    }
+
+    function bytesIguales(a, b) {
+      if (!a || !b || a.length !== b.length) return false;
+      let diff = 0;
+      for (let i = 0; i < a.length; i++) {
+        diff |= a[i] ^ b[i];
+      }
+      return diff === 0;
+    }
+
+    async function verificarIdentityV3Hash(hashedPassword, password) {
+      try {
+        const raw = Uint8Array.from(atob(hashedPassword), c => c.charCodeAt(0));
+        if (raw.length < 13 || raw[0] !== 0x01) return false;
+
+        const prf = readUInt32BE(raw, 1);
+        const iterCount = readUInt32BE(raw, 5);
+        const saltLen = readUInt32BE(raw, 9);
+
+        if (saltLen < 16 || raw.length < 13 + saltLen) return false;
+
+        const salt = raw.slice(13, 13 + saltLen);
+        const expectedSubkey = raw.slice(13 + saltLen);
+
+        let hashAlg = "SHA-256";
+        if (prf === 0) hashAlg = "SHA-1";
+        else if (prf === 1) hashAlg = "SHA-256";
+        else if (prf === 2) hashAlg = "SHA-512";
+
+        const keyMaterial = await crypto.subtle.importKey(
+          "raw",
+          new TextEncoder().encode(password),
+          "PBKDF2",
+          false,
+          ["deriveBits"]
+        );
+
+        const derivedBits = await crypto.subtle.deriveBits(
+          {
+            name: "PBKDF2",
+            salt,
+            iterations: iterCount,
+            hash: hashAlg
+          },
+          keyMaterial,
+          expectedSubkey.length * 8
+        );
+
+        return bytesIguales(new Uint8Array(derivedBits), expectedSubkey);
+      } catch {
+        return false;
+      }
+    }
+
+    async function validarPasswordContraHash(storedPass, plainPass) {
+      if (!storedPass) return false;
+      if (storedPass === plainPass) return true;
+
+      const sha256B64 = await hashPasswordSha256Base64(plainPass);
+      if (storedPass === sha256B64) return true;
+
+      if (storedPass.startsWith("AQAAAA")) {
+        return verificarIdentityV3Hash(storedPass, plainPass);
+      }
+
+      return false;
+    }
+
+    function aplicarEstadoSesion(userObj) {
+      const loginScreen = document.getElementById("loginScreen");
+      const appShell = document.getElementById("appShell");
+
+      document.getElementById("lblGranjaLogin").textContent = `🏡 ${CONFIG.nombreGranja}`;
+      document.getElementById("lblHeaderGranja").textContent = `⚖️ ${CONFIG.nombreGranja} - AvícolaSOFT Enterprise`;
+
+      if (userObj) {
+        usuarioActual = userObj;
+        const etiqueta = userObj[CONFIG.columnasUsuario.userName] || userObj[CONFIG.columnasUsuario.email] || "Usuario";
+        document.title = `${CONFIG.nombreGranja} - AvícolaSOFT Enterprise`;
+        document.getElementById("lblUsuarioActivo").textContent = `Usuario: ${etiqueta}`;
+        loginScreen.classList.add("hidden");
+        appShell.classList.add("authenticated");
+        cargarDatosIniciales();
+      } else {
+        usuarioActual = null;
+        document.title = `Iniciar Sesión - ${CONFIG.nombreGranja}`;
+        appShell.classList.remove("authenticated");
+        loginScreen.classList.remove("hidden");
+      }
+    }
+
+    async function manejarLogin(event) {
+      event.preventDefault();
+      const input = document.getElementById("txtUsuarioLogin").value.trim();
+      const pass = document.getElementById("txtPasswordLogin").value;
+
+      if (!input || !pass) {
+        return alert("Por favor, ingrese el usuario y la contraseña.");
+      }
+
+      const btn = document.getElementById("btnIngresar");
+      btn.disabled = true;
+      btn.textContent = "Validando...";
+
+      try {
+        const colUser = CONFIG.columnasUsuario.userName;
+        const colEmail = CONFIG.columnasUsuario.email;
+        const colHash = CONFIG.columnasUsuario.passwordHash;
+
+        const filtro = encodeURIComponent(`(${colEmail}.ilike.${input},${colUser}.ilike.${input})`);
+        const url = `${CONFIG.supabaseUrl}/rest/v1/${CONFIG.usuariosTabla}?select=*&or=${filtro}&limit=1`;
+
+        const res = await fetch(url, {
+          headers: {
+            "apikey": CONFIG.supabasePublishableKey,
+            "Authorization": `Bearer ${CONFIG.supabasePublishableKey}`
+          }
+        });
+
+        if (!res.ok) {
+          throw new Error(await res.text());
+        }
+
+        const rows = await res.json();
+        const user = rows[0];
+
+        if (!user) {
+          throw new Error("Usuario no encontrado en el sistema.");
+        }
+
+        const storedPass = String(user[colHash] || "");
+        const passwordValida = await validarPasswordContraHash(storedPass, pass);
+
+        if (!passwordValida) {
+          throw new Error("Contraseña incorrecta.");
+        }
+
+        const safeUser = { ...user };
+        delete safeUser[colHash];
+
+        sessionStorage.setItem(SESSION_KEY, JSON.stringify(safeUser));
+        document.getElementById("txtPasswordLogin").value = "";
+        aplicarEstadoSesion(safeUser);
+      } catch (err) {
+        alert("Acceso denegado:\n" + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "🔐 Ingresar";
+      }
+    }
+
+    function cerrarSesion() {
+      sessionStorage.removeItem(SESSION_KEY);
+      nuevaVenta();
+      aplicarEstadoSesion(null);
+    }
 
     function headersSupabase() {
       return {
@@ -499,6 +1043,7 @@
     }
 
     async function sbGet(tabla, query = "") {
+      if (!usuarioActual) throw new Error("Sesión no iniciada.");
       const res = await fetch(`${CONFIG.supabaseUrl}/rest/v1/${tabla}${query}`, {
         headers: headersSupabase()
       });
@@ -507,6 +1052,7 @@
     }
 
     async function sbPost(tabla, payload) {
+      if (!usuarioActual) throw new Error("Sesión no iniciada.");
       const res = await fetch(`${CONFIG.supabaseUrl}/rest/v1/${tabla}`, {
         method: "POST",
         headers: headersSupabase(),
@@ -523,18 +1069,33 @@
     }
 
     function cambiarVista(vista) {
+      if (!usuarioActual) return;
       document.getElementById("viewPesaje").classList.toggle("active", vista === "pesaje");
       document.getElementById("viewHistorial").classList.toggle("active", vista === "historial");
+      document.getElementById("viewClientes").classList.toggle("active", vista === "clientes");
+
       document.getElementById("tabPesaje").classList.toggle("active", vista === "pesaje");
       document.getElementById("tabHistorial").classList.toggle("active", vista === "historial");
+      document.getElementById("tabClientes").classList.toggle("active", vista === "clientes");
+
+      window.scrollTo({ top: 0, behavior: "smooth" });
       if (vista === "historial") cargarHistorial();
+      if (vista === "clientes") cargarClientesListado();
+    }
+
+    function poblarSelectClientes(clienteSeleccionadoId = null) {
+      const sel = document.getElementById("cmbCliente");
+      sel.innerHTML = listaClientes.map(c => `<option value="${c.Id}">${c.Nombre}</option>`).join("");
+      if (clienteSeleccionadoId) {
+        sel.value = String(clienteSeleccionadoId);
+      }
     }
 
     async function cargarDatosIniciales() {
       establecerFechaActual();
       try {
         const [clientes, lotes] = await Promise.all([
-          sbGet(CONFIG.tablas.clientes, "?select=Id,Nombre&order=Nombre.asc"),
+          sbGet(CONFIG.tablas.clientes, "?select=Id,Nombre,Documento,Tipo,SaldoActual,SaldoActualDOP,SaldoActualUSD&order=Nombre.asc"),
           sbGet(CONFIG.tablas.lotes, "?select=Id,CodigoLote,IsActivo&IsActivo=eq.true&order=Id.desc")
         ]);
 
@@ -543,15 +1104,15 @@
         clientesMap = {};
         lotesMap = {};
 
-        clientes.forEach(c => { clientesMap[c.Id] = c.Nombre; });
+        clientes.forEach(c => { clientesMap[c.Id] = c; });
         lotes.forEach(l => { lotesMap[l.Id] = l.CodigoLote; });
 
-        document.getElementById("cmbCliente").innerHTML =
-          clientes.map(c => `<option value="${c.Id}">${c.Nombre}</option>`).join("");
+        poblarSelectClientes();
 
         document.getElementById("cmbLote").innerHTML =
           lotes.map(l => `<option value="${l.Id}">${l.CodigoLote}</option>`).join("");
 
+        renderizarClientes();
         await verificarDeudaCliente();
         await actualizarCuadreLote();
       } catch (err) {
@@ -575,7 +1136,7 @@
         }, 0);
 
         if (deuda > 0) {
-          const nombre = clientesMap[clienteId] || "Cliente";
+          const nombre = clientesMap[clienteId]?.Nombre || "Cliente";
           alert(`⚠️ ATENCIÓN: El cliente ${nombre} posee un balance pendiente / deuda acumulada de:\n\nRD$ ${deuda.toLocaleString("es-DO", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`);
         }
       } catch (err) {
@@ -704,7 +1265,8 @@
       document.getElementById("txtDescripcion").value = "";
       document.getElementById("numPrecioLibra").value = "0.00";
       document.getElementById("chkCredito").checked = false;
-      document.getElementById("btnImprimirFactura").disabled = true;
+      document.getElementById("btnDescargarPdf").disabled = true;
+      document.getElementById("btnEnviarWhatsapp").disabled = true;
       document.getElementById("btnProcesarVenta").disabled = false;
       establecerFechaActual();
       renderTablas();
@@ -773,10 +1335,18 @@
           }))
         );
 
-        ultimaVentaGuardada = { ...cabecera, Id: ventaId, ...c };
+        ultimaVentaGuardada = {
+          ...cabecera,
+          Id: ventaId,
+          ...c,
+          detalleTaras: [...listaTaras],
+          detalleAves: [...listaPesajes]
+        };
+
         await actualizarCuadreLote();
 
-        document.getElementById("btnImprimirFactura").disabled = false;
+        document.getElementById("btnDescargarPdf").disabled = false;
+        document.getElementById("btnEnviarWhatsapp").disabled = false;
         alert(`¡Venta #${ventaId} procesada con éxito!\n\n${document.getElementById("lblCuadreLote").textContent}`);
       } catch (err) {
         btn.disabled = false;
@@ -786,22 +1356,201 @@
       }
     }
 
-    function imprimirFactura() {
-      if (!ultimaVentaGuardada) return alert("Debe procesar una venta primero para imprimir su factura.");
-      window.print();
+    function construirObjetoFacturaDesdeVenta(v) {
+      const clienteObj = clientesMap[v.ClienteId];
+      const bruto = Number(v.PesoBruto || 0);
+      const tara = Number(v.Tara || 0);
+      const precio = Number(v.PrecioPorLibra || 0);
+      const aves = Number(v.CantidadAves || 0);
+      const pesoNeto = Math.max(0, bruto - tara);
+      const montoTotal = pesoNeto * precio;
+
+      return {
+        id: v.Id,
+        fecha: v.Fecha ? new Date(v.Fecha).toLocaleString("es-DO") : new Date().toLocaleString("es-DO"),
+        clienteNombre: clienteObj?.Nombre || "Cliente General",
+        clienteDocumento: clienteObj?.Documento || "",
+        loteCodigo: lotesMap[v.LoteId] || `Lote #${v.LoteId}`,
+        referencia: v.ReferenciaCliente || "N/D",
+        observaciones: v.Observaciones || "",
+        condicion: v.EsCredito ? "Crédito" : "Contado",
+        aves,
+        pesoBruto: bruto,
+        tara,
+        pesoNeto,
+        precioLibra: precio,
+        montoTotal,
+        detalleTaras: v.detalleTaras || [],
+        detalleAves: v.detalleAves || []
+      };
+    }
+
+    function generarPdfFactura(factura, guardarArchivo = true) {
+      if (!window.jspdf || !window.jspdf.jsPDF) {
+        alert("No se pudo cargar la librería de PDF. Verifica tu conexión a internet.");
+        return null;
+      }
+
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ unit: "mm", format: "a4" });
+
+      let y = 18;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(16);
+      doc.setTextColor(30, 60, 114);
+      doc.text(CONFIG.nombreGranja.toUpperCase(), 15, y);
+
+      doc.setFontSize(11);
+      doc.setTextColor(80, 80, 80);
+      doc.text(`FACTURA DE VENTA DE POLLOS #${factura.id || "N/A"} - AvicolaSOFT Enterprise`, 15, y + 7);
+
+      y += 16;
+      doc.setFontSize(10);
+      doc.setTextColor(25, 25, 25);
+      doc.setFont("helvetica", "normal");
+
+      const lineas = [
+        `Fecha: ${factura.fecha}`,
+        `Cliente: ${factura.clienteNombre}${factura.clienteDocumento ? " (" + factura.clienteDocumento + ")" : ""}`,
+        `Lote / Nave: ${factura.loteCodigo}`,
+        `Factura Fisica / Ref.: ${factura.referencia}`,
+        `Condicion: ${factura.condicion}`
+      ];
+      if (factura.observaciones) {
+        lineas.push(`Descripcion: ${factura.observaciones}`);
+      }
+
+      lineas.forEach(txt => {
+        doc.text(txt, 15, y);
+        y += 6;
+      });
+
+      y += 4;
+      doc.setDrawColor(180, 190, 205);
+      doc.line(15, y, 195, y);
+      y += 8;
+
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(30, 60, 114);
+      doc.text("RESUMEN DE PESOS Y MONTO", 15, y);
+      y += 7;
+
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(25, 25, 25);
+      doc.text(`Total Aves: ${factura.aves} aves`, 15, y);
+      doc.text(`Peso Bruto: ${factura.pesoBruto.toFixed(2)} Lbs`, 85, y);
+      doc.text(`Total Tara: ${factura.tara.toFixed(2)} Lbs`, 145, y);
+      y += 7;
+
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(40, 167, 69);
+      doc.text(`Peso Neto: ${factura.pesoNeto.toFixed(2)} Lbs`, 15, y);
+      doc.text(`Precio/Lb: RD$ ${factura.precioLibra.toFixed(2)}`, 85, y);
+      y += 9;
+
+      doc.setFontSize(13);
+      doc.setTextColor(30, 60, 114);
+      doc.text(
+        `MONTO TOTAL: RD$ ${factura.montoTotal.toLocaleString("es-DO", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+        15,
+        y
+      );
+
+      if (factura.detalleAves.length > 0) {
+        y += 12;
+        doc.setFontSize(10);
+        doc.setFont("helvetica", "bold");
+        doc.text("Detalle de Pesadas de Aves:", 15, y);
+        y += 6;
+        doc.setFont("helvetica", "normal");
+        factura.detalleAves.forEach((p, idx) => {
+          doc.text(
+            `${idx + 1}. Jaulas: ${p.CantidadJaulas} | Aves: ${p.TotalAves} | Peso Bruto: ${Number(p.PesoBruto).toFixed(2)} Lbs`,
+            18,
+            y
+          );
+          y += 5.5;
+        });
+      }
+
+      if (factura.detalleTaras.length > 0) {
+        y += 6;
+        doc.setFont("helvetica", "bold");
+        doc.text("Detalle de Taras:", 15, y);
+        y += 6;
+        doc.setFont("helvetica", "normal");
+        factura.detalleTaras.forEach((t, idx) => {
+          doc.text(
+            `${idx + 1}. Jaulas: ${t.CantidadJaulas} | Peso Tara: ${Number(t.PesoTara).toFixed(2)} Lbs`,
+            18,
+            y
+          );
+          y += 5.5;
+        });
+      }
+
+      const nombreArchivo = `Factura_Venta_${factura.id || "Pesaje"}.pdf`;
+      if (guardarArchivo) {
+        doc.save(nombreArchivo);
+      }
+      return { doc, nombreArchivo };
+    }
+
+    function descargarFacturaPdf() {
+      if (!ultimaVentaGuardada) return alert("Procesa una venta primero para generar el PDF.");
+      const factura = construirObjetoFacturaDesdeVenta(ultimaVentaGuardada);
+      generarPdfFactura(factura, true);
+    }
+
+    function limpiarTelefonoWhatsapp(raw) {
+      const digits = String(raw || "").replace(/\D/g, "");
+      if (!digits) return "";
+      if (digits.length === 10) return "1" + digits;
+      return digits;
+    }
+
+    function enviarFacturaWhatsapp(ventaObj = null) {
+      const baseVenta = ventaObj || ultimaVentaGuardada;
+      if (!baseVenta) return alert("Procesa una venta primero para enviarla por WhatsApp.");
+
+      const factura = construirObjetoFacturaDesdeVenta(baseVenta);
+      generarPdfFactura(factura, true);
+
+      const mensaje = [
+        `*${CONFIG.nombreGranja.toUpperCase()} - FACTURA #${factura.id || "N/A"}*`,
+        `Cliente: ${factura.clienteNombre}`,
+        `Lote: ${factura.loteCodigo}`,
+        `Ref./Fact. Física: ${factura.referencia}`,
+        `Condición: ${factura.condicion}`,
+        `Total Aves: ${factura.aves} aves`,
+        `Peso Bruto: ${factura.pesoBruto.toFixed(2)} Lbs`,
+        `Tara: ${factura.tara.toFixed(2)} Lbs`,
+        `*Peso Neto: ${factura.pesoNeto.toFixed(2)} Lbs*`,
+        `Precio/Lb: RD$ ${factura.precioLibra.toFixed(2)}`,
+        `*MONTO TOTAL: RD$ ${factura.montoTotal.toLocaleString("es-DO", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}*`,
+        "",
+        "_(Se descargó el PDF de la factura para adjuntarlo en este chat)._"
+      ].join("\n");
+
+      const phone = limpiarTelefonoWhatsapp(factura.clienteDocumento);
+      const url = phone
+        ? `https://wa.me/${phone}?text=${encodeURIComponent(mensaje)}`
+        : `https://wa.me/?text=${encodeURIComponent(mensaje)}`;
+
+      window.open(url, "_blank");
     }
 
     async function cargarHistorial() {
       try {
         const [clientes, lotes, ventas] = await Promise.all([
-          sbGet(CONFIG.tablas.clientes, "?select=Id,Nombre"),
+          sbGet(CONFIG.tablas.clientes, "?select=Id,Nombre,Documento"),
           sbGet(CONFIG.tablas.lotes, "?select=Id,CodigoLote"),
           sbGet(CONFIG.tablas.ventas, "?select=*&order=Fecha.desc")
         ]);
 
         clientesMap = {};
         lotesMap = {};
-        clientes.forEach(c => { clientesMap[c.Id] = c.Nombre; });
+        clientes.forEach(c => { clientesMap[c.Id] = c; });
         lotes.forEach(l => { lotesMap[l.Id] = l.CodigoLote; });
         ventasCache = ventas;
 
@@ -811,19 +1560,29 @@
       }
     }
 
+    function enviarHistorialWhatsappPorIndice(idx) {
+      const v = ventasCache[idx];
+      if (!v) return;
+      enviarFacturaWhatsapp(v);
+    }
+
     function renderizarHistorial() {
       const q = (document.getElementById("txtBuscarHistorial").value || "").trim().toLowerCase();
 
-      const filtradas = !q ? ventasCache : ventasCache.filter(v => {
-        const ref = (v.ReferenciaCliente || "").toLowerCase();
-        const obs = (v.Observaciones || "").toLowerCase();
-        const cli = (clientesMap[v.ClienteId] || "").toLowerCase();
-        const lote = (lotesMap[v.LoteId] || "").toLowerCase();
-        return ref.includes(q) || obs.includes(q) || cli.includes(q) || lote.includes(q);
-      });
+      const filtradas = !q
+        ? ventasCache.map((v, idx) => ({ v, idx }))
+        : ventasCache
+            .map((v, idx) => ({ v, idx }))
+            .filter(({ v }) => {
+              const ref = (v.ReferenciaCliente || "").toLowerCase();
+              const obs = (v.Observaciones || "").toLowerCase();
+              const cli = (clientesMap[v.ClienteId]?.Nombre || "").toLowerCase();
+              const lote = (lotesMap[v.LoteId] || "").toLowerCase();
+              return ref.includes(q) || obs.includes(q) || cli.includes(q) || lote.includes(q);
+            });
 
       let montoGlobal = 0;
-      document.getElementById("tbodyHistorial").innerHTML = filtradas.map(v => {
+      document.getElementById("tbodyHistorial").innerHTML = filtradas.map(({ v, idx }) => {
         const bruto = Number(v.PesoBruto || 0);
         const tara = Number(v.Tara || 0);
         const precio = Number(v.PrecioPorLibra || 0);
@@ -835,7 +1594,7 @@
 
         const fechaStr = v.Fecha ? new Date(v.Fecha).toLocaleString("es-DO") : "N/D";
         const refStr = v.ReferenciaCliente || "N/D";
-        const cliStr = clientesMap[v.ClienteId] || "Cliente General";
+        const cliStr = clientesMap[v.ClienteId]?.Nombre || "Cliente General";
         const loteStr = lotesMap[v.LoteId] || "N/D";
         const descStr = v.Observaciones || "-";
 
@@ -850,6 +1609,9 @@
             <td><strong>RD$ ${montoTotal.toLocaleString("es-DO", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></td>
             <td class="${esCredito ? "badge-credito" : "badge-contado"}">${esCredito ? "Crédito" : "Contado"}</td>
             <td>${descStr}</td>
+            <td>
+              <button type="button" class="btn-whatsapp" style="padding:6px 10px; min-height:36px; font-size:12px;" onclick="enviarHistorialWhatsappPorIndice(${idx})">📲 PDF / WA</button>
+            </td>
           </tr>
         `;
       }).join("");
@@ -858,7 +1620,112 @@
       document.getElementById("histMontoGlobal").textContent = `RD$ ${montoGlobal.toLocaleString("es-DO", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     }
 
-    cargarDatosIniciales();
+    function limpiarFormularioCliente() {
+      document.getElementById("txtNuevoClienteNombre").value = "";
+      document.getElementById("txtNuevoClienteDocumento").value = "";
+      document.getElementById("cmbNuevoClienteTipo").value = "0";
+      document.getElementById("numNuevoClienteSaldo").value = "0.00";
+    }
+
+    async function guardarNuevoCliente() {
+      const nombre = document.getElementById("txtNuevoClienteNombre").value.trim();
+      const documento = document.getElementById("txtNuevoClienteDocumento").value.trim();
+      const tipo = parseInt(document.getElementById("cmbNuevoClienteTipo").value, 10) || 0;
+      const saldoInicial = parseFloat(document.getElementById("numNuevoClienteSaldo").value) || 0;
+
+      if (!nombre) {
+        return alert("Ingresa el nombre o razón social del cliente.");
+      }
+
+      const btn = document.getElementById("btnGuardarCliente");
+      btn.disabled = true;
+      btn.textContent = "Guardando...";
+
+      try {
+        const nuevo = {
+          Nombre: nombre,
+          Documento: documento,
+          Tipo: tipo,
+          SaldoActual: saldoInicial,
+          SaldoActualDOP: saldoInicial,
+          SaldoActualUSD: 0
+        };
+
+        const insertados = await sbPost(CONFIG.tablas.clientes, nuevo);
+        const creado = insertados[0];
+
+        limpiarFormularioCliente();
+        await cargarClientesListado(creado?.Id);
+        alert(`¡Cliente "${nombre}" guardado con éxito!`);
+      } catch (err) {
+        alert("Error al guardar cliente en Supabase:\n" + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "💾 Guardar Cliente";
+      }
+    }
+
+    async function cargarClientesListado(seleccionarId = null) {
+      try {
+        const clientes = await sbGet(
+          CONFIG.tablas.clientes,
+          "?select=Id,Nombre,Documento,Tipo,SaldoActual,SaldoActualDOP,SaldoActualUSD&order=Nombre.asc"
+        );
+        listaClientes = clientes;
+        clientesMap = {};
+        clientes.forEach(c => { clientesMap[c.Id] = c; });
+
+        poblarSelectClientes(seleccionarId);
+        renderizarClientes();
+      } catch (err) {
+        alert("Error al cargar clientes:\n" + err.message);
+      }
+    }
+
+    function seleccionarClienteParaVenta(clienteId) {
+      poblarSelectClientes(clienteId);
+      cambiarVista("pesaje");
+      verificarDeudaCliente();
+    }
+
+    function renderizarClientes() {
+      const q = (document.getElementById("txtBuscarCliente").value || "").trim().toLowerCase();
+
+      const filtrados = !q ? listaClientes : listaClientes.filter(c => {
+        const nom = (c.Nombre || "").toLowerCase();
+        const doc = (c.Documento || "").toLowerCase();
+        return nom.includes(q) || doc.includes(q);
+      });
+
+      const tipoTexto = t => (Number(t) === 1 ? "Proveedor" : Number(t) === 2 ? "Ambos" : "Cliente");
+
+      document.getElementById("tbodyClientes").innerHTML = filtrados.map(c => {
+        const saldo = Number(c.SaldoActual ?? c.SaldoActualDOP ?? 0);
+        return `
+          <tr>
+            <td>${c.Id}</td>
+            <td><strong>${c.Nombre || ""}</strong></td>
+            <td>${c.Documento || "-"}</td>
+            <td>${tipoTexto(c.Tipo)}</td>
+            <td><strong>RD$ ${saldo.toLocaleString("es-DO", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></td>
+            <td>
+              <button type="button" class="btn-primary" style="padding:6px 10px; min-height:36px; font-size:12px;" onclick="seleccionarClienteParaVenta(${c.Id})">⚖️ Usar en Venta</button>
+            </td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    try {
+      const guardada = sessionStorage.getItem(SESSION_KEY);
+      if (guardada) {
+        aplicarEstadoSesion(JSON.parse(guardada));
+      } else {
+        aplicarEstadoSesion(null);
+      }
+    } catch {
+      aplicarEstadoSesion(null);
+    }
   </script>
 </body>
 </html>
