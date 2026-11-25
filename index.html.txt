@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Báscula Pollos" />
+  <title>Báscula y Venta de Pollos - AvícolaSOFT Enterprise</title>
+  <style>
+    :root {
+      --primary: #1e3c72;
+      --primary-light: #2a5298;
+      --accent: #28a745;
+      --info: #17a2b8;
+      --danger: #c0392b;
+      --secondary: #6c757d;
+      --bg: #f5f7fa;
+      --card: #ffffff;
+      --border: #dce3ec;
+      --text: #1f2d3d;
+      --muted: #6c757d;
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    header {
+      background: var(--primary);
+      color: #fff;
+      padding: 14px 20px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .brand { font-size: 17px; font-weight: 700; }
+
+    .tabs { display: flex; gap: 8px; }
+
+    .tab-btn {
+      border: 1px solid rgba(255,255,255,0.35);
+      background: transparent;
+      color: #fff;
+      padding: 9px 16px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .tab-btn.active {
+      background: #fff;
+      color: var(--primary);
+    }
+
+    main {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 18px;
+    }
+
+    .view { display: none; }
+    .view.active { display: block; }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--primary);
+      margin: 0 0 12px 0;
+    }
+
+    .form-grid-4 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .form-grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 15px;
+      background: #fff;
+      color: var(--text);
+    }
+
+    .cuadre-box {
+      margin-top: 12px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: #eef3f9;
+      color: var(--primary);
+      font-size: 13px;
+      font-style: italic;
+      font-weight: 600;
+    }
+
+    .inline-tara {
+      display: grid;
+      grid-template-columns: 100px 1fr auto;
+      gap: 8px;
+      align-items: end;
+      margin-bottom: 12px;
+    }
+
+    .inline-pesaje {
+      display: grid;
+      grid-template-columns: 85px 95px 1fr auto;
+      gap: 8px;
+      align-items: end;
+      margin-bottom: 12px;
+    }
+
+    button {
+      border: none;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    button:disabled { opacity: 0.55; cursor: not-allowed; }
+
+    .btn-primary { background: var(--primary-light); color: #fff; }
+    .btn-success { background: var(--accent); color: #fff; }
+    .btn-info { background: var(--info); color: #fff; }
+    .btn-secondary { background: var(--secondary); color: #fff; }
+    .btn-danger { background: var(--danger); color: #fff; padding: 6px 10px; font-size: 12px; }
+
+    .table-wrap { overflow-x: auto; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    th, td {
+      border-bottom: 1px solid var(--border);
+      padding: 10px 8px;
+      text-align: left;
+    }
+
+    th {
+      background: #f0f4f8;
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 12px;
+      align-items: center;
+    }
+
+    .stat-label { font-size: 12px; color: var(--muted); font-weight: 700; }
+    .stat-val { font-size: 17px; font-weight: 800; color: var(--text); margin-top: 2px; }
+    .stat-val.red { color: var(--danger); }
+    .stat-val.green { color: var(--accent); font-size: 19px; }
+    .stat-val.total { color: var(--primary); font-size: 22px; }
+
+    .footer-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .right-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .check-inline {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      font-size: 15px;
+      cursor: pointer;
+    }
+
+    .check-inline input { width: 18px; height: 18px; }
+
+    .badge-credito { color: var(--danger); font-weight: 700; }
+    .badge-contado { color: var(--accent); font-weight: 700; }
+
+    .search-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .search-bar input { flex: 1; min-width: 240px; }
+
+    .hist-summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      background: #eef3f9;
+      padding: 14px;
+      border-radius: 10px;
+      margin-bottom: 14px;
+    }
+
+    @media print {
+      header, .tabs, .footer-actions, .inline-tara, .inline-pesaje, .btn-danger, .search-bar {
+        display: none !important;
+      }
+      body { background: #fff; }
+      .card { border: none; box-shadow: none; padding: 8px 0; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">⚖️ Báscula y Venta de Pollos - AvícolaSOFT Enterprise</div>
+    <div class="tabs">
+      <button class="tab-btn active" id="tabPesaje" onclick="cambiarVista('pesaje')">⚖️ Báscula / Venta</button>
+      <button class="tab-btn" id="tabHistorial" onclick="cambiarVista('historial')">📊 Historial</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- VISTA 1: BÁSCULA Y VENTA DE POLLOS -->
+    <section id="viewPesaje" class="view active">
+      <div class="card">
+        <h2 class="card-title">Datos Generales de la Venta</h2>
+
+        <div class="form-grid-4">
+          <div>
+            <label>Cliente / Comprador:</label>
+            <select id="cmbCliente" onchange="verificarDeudaCliente()"></select>
+          </div>
+          <div>
+            <label>Nave / Lote de Origen:</label>
+            <select id="cmbLote" onchange="actualizarCuadreLote()"></select>
+          </div>
+          <div>
+            <label>Precio por Libra (RD$):</label>
+            <input type="number" id="numPrecioLibra" step="0.01" min="0" value="0.00" oninput="recalcularTotales()" />
+          </div>
+          <div>
+            <label>Fecha de Venta:</label>
+            <input type="datetime-local" id="dtpFechaVenta" />
+          </div>
+        </div>
+
+        <div class="form-grid-3">
+          <div>
+            <label>Nº Factura Física:</label>
+            <input type="text" id="txtNumeroFacturaFisica" placeholder="Ej. 000124" />
+          </div>
+          <div>
+            <label>Referencia / Chofer:</label>
+            <input type="text" id="txtReferencia" placeholder="Nombre del chofer o guía..." />
+          </div>
+          <div>
+            <label>Descripción:</label>
+            <input type="text" id="txtDescripcion" placeholder="Detalle o nota adicional de la venta..." />
+          </div>
+        </div>
+
+        <div class="cuadre-box" id="lblCuadreLote">
+          Cuadre del lote: Seleccione un lote para ver peso neto, aves y promedio acumulado.
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <!-- 1. REGISTRO DE TARAS -->
+        <div class="card">
+          <h2 class="card-title">1. Registro de Taras (Jaulas Vacías)</h2>
+          <div class="inline-tara">
+            <div>
+              <label>Cant. Jaulas:</label>
+              <input type="number" id="numJaulasTara" min="1" value="1" />
+            </div>
+            <div>
+              <label>Peso Tara (Lbs):</label>
+              <input type="number" id="numPesoTara" step="0.01" min="0" placeholder="0.00" />
+            </div>
+            <button type="button" class="btn-secondary" onclick="agregarTara()">➕ Agregar Tara</button>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Jaulas</th>
+                  <th>Peso Tara (Lbs)</th>
+                  <th>Acción</th>
+                </tr>
+              </thead>
+              <tbody id="tbodyTaras"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 2. REGISTRO DE PESADAS DE AVES -->
+        <div class="card">
+          <h2 class="card-title">2. Registro de Pesadas de Aves</h2>
+          <div class="inline-pesaje">
+            <div>
+              <label>Jaulas:</label>
+              <input type="number" id="numJaulasPesaje" min="1" value="1" />
+            </div>
+            <div>
+              <label>Aves/Jaula:</label>
+              <input type="number" id="numAvesJaula" min="1" value="10" />
+            </div>
+            <div>
+              <label>Peso Bruto (Lbs):</label>
+              <input type="number" id="numPesoBruto" step="0.01" min="0" placeholder="0.00" />
+            </div>
+            <button type="button" class="btn-success" onclick="agregarPesaje()">➕ Agregar Pesaje</button>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Jaulas</th>
+                  <th>Total Aves</th>
+                  <th>Peso Bruto (Lbs)</th>
+                  <th>Acción</th>
+                </tr>
+              </thead>
+              <tbody id="tbodyPesajes"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. RESUMEN FINANCIERO Y DE PESOS -->
+      <div class="card">
+        <h2 class="card-title">3. Resumen Financiero y de Pesos</h2>
+        <div class="summary-grid">
+          <div>
+            <div class="stat-label">Total Peso Tara:</div>
+            <div class="stat-val red" id="lblTotalPesoTara">0.00 Lbs</div>
+          </div>
+          <div>
+            <div class="stat-label">Total Aves:</div>
+            <div class="stat-val" id="lblTotalAves">0 aves</div>
+          </div>
+          <div>
+            <div class="stat-label">Peso Bruto Total:</div>
+            <div class="stat-val" id="lblPesoBrutoTotal">0.00 Lbs</div>
+          </div>
+          <div>
+            <div class="stat-label">Peso Neto Total:</div>
+            <div class="stat-val green" id="lblPesoNetoTotal">0.00 Lbs</div>
+          </div>
+          <div>
+            <div class="stat-label">MONTO TOTAL:</div>
+            <div class="stat-val total" id="lblMontoTotal">$ 0.00</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. ACCIONES Y CRÉDITO -->
+      <div class="card">
+        <div class="footer-actions">
+          <label class="check-inline">
+            <input type="checkbox" id="chkCredito" />
+            <span>Venta a Crédito</span>
+          </label>
+
+          <div class="right-actions">
+            <button type="button" class="btn-secondary" onclick="nuevaVenta()">🆕 Nueva Venta</button>
+            <button type="button" class="btn-info" id="btnImprimirFactura" onclick="imprimirFactura()" disabled>🖨️ Imprimir Factura</button>
+            <button type="button" class="btn-success" id="btnProcesarVenta" onclick="guardarVenta()">✅ Procesar Venta</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VISTA 2: HISTORIAL GENERAL DE VENTAS DE POLLOS -->
+    <section id="viewHistorial" class="view">
+      <div class="card">
+        <h2 class="card-title">📊 Historial Completo de Ventas de Pollos</h2>
+
+        <div class="search-bar">
+          <input type="text" id="txtBuscarHistorial" placeholder="Buscar por Nº factura física, cliente, lote o descripción..." oninput="renderizarHistorial()" />
+          <button type="button" class="btn-secondary" onclick="document.getElementById('txtBuscarHistorial').value=''; renderizarHistorial();">✖ Limpiar</button>
+          <button type="button" class="btn-primary" onclick="cargarHistorial()">🔄 Actualizar</button>
+        </div>
+
+        <div class="hist-summary">
+          <div>
+            <div class="stat-label">TOTAL FACTURAS</div>
+            <div class="stat-val" id="histTotalFacturas">0</div>
+          </div>
+          <div>
+            <div class="stat-label">MONTO GLOBAL ACUMULADO</div>
+            <div class="stat-val green" id="histMontoGlobal">RD$ 0.00</div>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Fecha y Hora</th>
+                <th>Factura Física / Ref.</th>
+                <th>Cliente / Comprador</th>
+                <th>Lote / Nave</th>
+                <th>Total Aves</th>
+                <th>Peso Neto (Lbs)</th>
+                <th>Monto Total (RD$)</th>
+                <th>Condición</th>
+                <th>Descripción</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyHistorial"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const CONFIG = {
+      supabaseUrl: "https://ssluldkqseaukoibggvn.supabase.co",
+      supabasePublishableKey: "sb_publishable_bmlnUO_swVEuqb9uaSb6jA_DbiNlc7h",
+      tablas: {
+        ventas: "VentaPollosPesajes",
+        detalleTaras: "VentaPollosPesajeDetalleTaras",
+        detalleAves: "VentaPollosPesajeDetalleAves",
+        clientes: "Terceros",
+        lotes: "Lotes"
+      }
+    };
+
+    let listaTaras = [];
+    let listaPesajes = [];
+    let listaClientes = [];
+    let listaLotes = [];
+    let clientesMap = {};
+    let lotesMap = {};
+    let ventasCache = [];
+    let ultimaVentaGuardada = null;
+
+    function headersSupabase() {
+      return {
+        "apikey": CONFIG.supabasePublishableKey,
+        "Authorization": `Bearer ${CONFIG.supabasePublishableKey}`,
+        "Content-Type": "application/json",
+        "Prefer": "return=representation"
+      };
+    }
+
+    async function sbGet(tabla, query = "") {
+      const res = await fetch(`${CONFIG.supabaseUrl}/rest/v1/${tabla}${query}`, {
+        headers: headersSupabase()
+      });
+      if (!res.ok) throw new Error(await res.text());
+      return res.json();
+    }
+
+    async function sbPost(tabla, payload) {
+      const res = await fetch(`${CONFIG.supabaseUrl}/rest/v1/${tabla}`, {
+        method: "POST",
+        headers: headersSupabase(),
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error(await res.text());
+      return res.json();
+    }
+
+    function establecerFechaActual() {
+      const now = new Date();
+      const offset = now.getTimezoneOffset() * 60000;
+      document.getElementById("dtpFechaVenta").value = new Date(now - offset).toISOString().slice(0, 16);
+    }
+
+    function cambiarVista(vista) {
+      document.getElementById("viewPesaje").classList.toggle("active", vista === "pesaje");
+      document.getElementById("viewHistorial").classList.toggle("active", vista === "historial");
+      document.getElementById("tabPesaje").classList.toggle("active", vista === "pesaje");
+      document.getElementById("tabHistorial").classList.toggle("active", vista === "historial");
+      if (vista === "historial") cargarHistorial();
+    }
+
+    async function cargarDatosIniciales() {
+      establecerFechaActual();
+      try {
+        const [clientes, lotes] = await Promise.all([
+          sbGet(CONFIG.tablas.clientes, "?select=Id,Nombre&order=Nombre.asc"),
+          sbGet(CONFIG.tablas.lotes, "?select=Id,CodigoLote,IsActivo&IsActivo=eq.true&order=Id.desc")
+        ]);
+
+        listaClientes = clientes;
+        listaLotes = lotes;
+        clientesMap = {};
+        lotesMap = {};
+
+        clientes.forEach(c => { clientesMap[c.Id] = c.Nombre; });
+        lotes.forEach(l => { lotesMap[l.Id] = l.CodigoLote; });
+
+        document.getElementById("cmbCliente").innerHTML =
+          clientes.map(c => `<option value="${c.Id}">${c.Nombre}</option>`).join("");
+
+        document.getElementById("cmbLote").innerHTML =
+          lotes.map(l => `<option value="${l.Id}">${l.CodigoLote}</option>`).join("");
+
+        await verificarDeudaCliente();
+        await actualizarCuadreLote();
+      } catch (err) {
+        console.error("Error cargando datos iniciales:", err);
+      }
+    }
+
+    async function verificarDeudaCliente() {
+      const clienteId = Number(document.getElementById("cmbCliente").value);
+      if (!clienteId) return;
+
+      try {
+        const creditos = await sbGet(
+          CONFIG.tablas.ventas,
+          `?select=PesoBruto,Tara,PrecioPorLibra&ClienteId=eq.${clienteId}&EsCredito=eq.true`
+        );
+
+        const deuda = creditos.reduce((acc, v) => {
+          const neto = Math.max(0, Number(v.PesoBruto || 0) - Number(v.Tara || 0));
+          return acc + (neto * Number(v.PrecioPorLibra || 0));
+        }, 0);
+
+        if (deuda > 0) {
+          const nombre = clientesMap[clienteId] || "Cliente";
+          alert(`⚠️ ATENCIÓN: El cliente ${nombre} posee un balance pendiente / deuda acumulada de:\n\nRD$ ${deuda.toLocaleString("es-DO", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`);
+        }
+      } catch (err) {
+        console.error("Error verificando deuda:", err);
+      }
+    }
+
+    async function actualizarCuadreLote() {
+      const loteId = Number(document.getElementById("cmbLote").value);
+      const lbl = document.getElementById("lblCuadreLote");
+      if (!loteId) {
+        lbl.textContent = "Cuadre del lote: Seleccione un lote para ver peso neto, aves y promedio acumulado.";
+        return;
+      }
+
+      try {
+        const ventasLote = await sbGet(
+          CONFIG.tablas.ventas,
+          `?select=CantidadAves,PesoBruto,Tara,PrecioPorLibra&LoteId=eq.${loteId}`
+        );
+
+        const avesVendidas = ventasLote.reduce((acc, v) => acc + Number(v.CantidadAves || 0), 0);
+        const pesoNetoTotal = ventasLote.reduce((acc, v) => acc + Math.max(0, Number(v.PesoBruto || 0) - Number(v.Tara || 0)), 0);
+        const montoTotalLote = ventasLote.reduce((acc, v) => {
+          const neto = Math.max(0, Number(v.PesoBruto || 0) - Number(v.Tara || 0));
+          return acc + (neto * Number(v.PrecioPorLibra || 0));
+        }, 0);
+        const promedioLibraAve = avesVendidas > 0 ? (pesoNetoTotal / avesVendidas) : 0;
+        const codigoLote = lotesMap[loteId] || `Lote #${loteId}`;
+
+        lbl.textContent =
+          `Cuadre ${codigoLote}: ${ventasLote.length} venta(s) | ${avesVendidas} aves | ` +
+          `Peso Neto Acumulado: ${pesoNetoTotal.toFixed(2)} Lbs | Promedio: ${promedioLibraAve.toFixed(2)} Lbs/ave | ` +
+          `Total Vendido: $ ${montoTotalLote.toLocaleString("es-DO", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      } catch (err) {
+        lbl.textContent = "Cuadre del lote: No se pudo calcular el acumulado del lote.";
+      }
+    }
+
+    function agregarTara() {
+      const jaulas = parseInt(document.getElementById("numJaulasTara").value, 10) || 0;
+      const peso = parseFloat(document.getElementById("numPesoTara").value) || 0;
+      if (jaulas <= 0 || peso <= 0) {
+        return alert("Indique una cantidad de jaulas y peso de tara válidos.");
+      }
+      listaTaras.push({ CantidadJaulas: jaulas, PesoTara: peso });
+      document.getElementById("numPesoTara").value = "";
+      renderTablas();
+      recalcularTotales();
+    }
+
+    function removerTara(index) {
+      listaTaras.splice(index, 1);
+      renderTablas();
+      recalcularTotales();
+    }
+
+    function agregarPesaje() {
+      const jaulas = parseInt(document.getElementById("numJaulasPesaje").value, 10) || 0;
+      const avesJaula = parseInt(document.getElementById("numAvesJaula").value, 10) || 0;
+      const bruto = parseFloat(document.getElementById("numPesoBruto").value) || 0;
+      if (jaulas <= 0 || avesJaula <= 0 || bruto <= 0) {
+        return alert("Complete los campos de aves, jaulas y peso bruto.");
+      }
+      listaPesajes.push({
+        CantidadJaulas: jaulas,
+        AvesPorJaula: avesJaula,
+        TotalAves: jaulas * avesJaula,
+        PesoBruto: bruto
+      });
+      document.getElementById("numPesoBruto").value = "";
+      renderTablas();
+      recalcularTotales();
+    }
+
+    function removerPesaje(index) {
+      listaPesajes.splice(index, 1);
+      renderTablas();
+      recalcularTotales();
+    }
+
+    function renderTablas() {
+      document.getElementById("tbodyTaras").innerHTML = listaTaras.map((t, i) => `
+        <tr>
+          <td>${t.CantidadJaulas}</td>
+          <td>${Number(t.PesoTara).toFixed(2)}</td>
+          <td><button type="button" class="btn-danger" onclick="removerTara(${i})">❌ Quitar</button></td>
+        </tr>
+      `).join("");
+
+      document.getElementById("tbodyPesajes").innerHTML = listaPesajes.map((p, i) => `
+        <tr>
+          <td>${p.CantidadJaulas}</td>
+          <td>${p.TotalAves}</td>
+          <td>${Number(p.PesoBruto).toFixed(2)}</td>
+          <td><button type="button" class="btn-danger" onclick="removerPesaje(${i})">❌ Quitar</button></td>
+        </tr>
+      `).join("");
+    }
+
+    function obtenerCalculos() {
+      const totalTara = listaTaras.reduce((acc, t) => acc + Number(t.PesoTara || 0), 0);
+      const totalAves = listaPesajes.reduce((acc, p) => acc + Number(p.TotalAves || 0), 0);
+      const pesoBruto = listaPesajes.reduce((acc, p) => acc + Number(p.PesoBruto || 0), 0);
+      const pesoNeto = Math.max(0, pesoBruto - totalTara);
+      const precioLibra = parseFloat(document.getElementById("numPrecioLibra").value) || 0;
+      const montoTotal = pesoNeto * precioLibra;
+      return { totalTara, totalAves, pesoBruto, pesoNeto, precioLibra, montoTotal };
+    }
+
+    function recalcularTotales() {
+      const c = obtenerCalculos();
+      document.getElementById("lblTotalPesoTara").textContent = `${c.totalTara.toFixed(2)} Lbs`;
+      document.getElementById("lblTotalAves").textContent = `${c.totalAves} aves`;
+      document.getElementById("lblPesoBrutoTotal").textContent = `${c.pesoBruto.toFixed(2)} Lbs`;
+      document.getElementById("lblPesoNetoTotal").textContent = `${c.pesoNeto.toFixed(2)} Lbs`;
+      document.getElementById("lblMontoTotal").textContent = `$ ${c.montoTotal.toLocaleString("es-DO", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    }
+
+    function nuevaVenta() {
+      listaTaras = [];
+      listaPesajes = [];
+      ultimaVentaGuardada = null;
+      document.getElementById("txtNumeroFacturaFisica").value = "";
+      document.getElementById("txtReferencia").value = "";
+      document.getElementById("txtDescripcion").value = "";
+      document.getElementById("numPrecioLibra").value = "0.00";
+      document.getElementById("chkCredito").checked = false;
+      document.getElementById("btnImprimirFactura").disabled = true;
+      document.getElementById("btnProcesarVenta").disabled = false;
+      establecerFechaActual();
+      renderTablas();
+      recalcularTotales();
+    }
+
+    async function guardarVenta() {
+      const clienteId = Number(document.getElementById("cmbCliente").value);
+      const loteId = Number(document.getElementById("cmbLote").value);
+      const c = obtenerCalculos();
+
+      if (!clienteId) return alert("Seleccione un cliente válido.");
+      if (!loteId) return alert("Seleccione el lote de origen.");
+      if (!listaTaras.length || !listaPesajes.length) return alert("Debe registrar al menos una tara y un pesaje de aves.");
+      if (c.precioLibra <= 0) return alert("Indique un precio por libra mayor a cero.");
+
+      const numFacturaFisica = document.getElementById("txtNumeroFacturaFisica").value.trim();
+      const referenciaTexto = document.getElementById("txtReferencia").value.trim();
+      const referenciaFinal = numFacturaFisica
+        ? (referenciaTexto ? `Fact. Física #${numFacturaFisica} | ${referenciaTexto}` : `Fact. Física #${numFacturaFisica}`)
+        : referenciaTexto;
+
+      const fechaInput = document.getElementById("dtpFechaVenta").value;
+      const fechaIso = fechaInput ? new Date(fechaInput).toISOString() : new Date().toISOString();
+
+      const btn = document.getElementById("btnProcesarVenta");
+      btn.disabled = true;
+      btn.textContent = "Procesando...";
+
+      try {
+        const cabecera = {
+          ClienteId: clienteId,
+          LoteId: loteId,
+          CantidadAves: c.totalAves,
+          PesoBruto: c.pesoBruto,
+          Tara: c.totalTara,
+          PrecioPorLibra: c.precioLibra,
+          EsCredito: document.getElementById("chkCredito").checked,
+          DiasPlazo: 0,
+          Fecha: fechaIso,
+          Observaciones: document.getElementById("txtDescripcion").value.trim(),
+          ReferenciaCliente: referenciaFinal
+        };
+
+        const insertadas = await sbPost(CONFIG.tablas.ventas, cabecera);
+        const ventaId = insertadas[0]?.Id;
+        if (!ventaId) throw new Error("No se obtuvo el ID de la venta guardada.");
+
+        await sbPost(
+          CONFIG.tablas.detalleTaras,
+          listaTaras.map(t => ({
+            VentaPollosPesajeId: ventaId,
+            CantidadJaulas: t.CantidadJaulas,
+            PesoTara: t.PesoTara
+          }))
+        );
+
+        await sbPost(
+          CONFIG.tablas.detalleAves,
+          listaPesajes.map(p => ({
+            VentaPollosPesajeId: ventaId,
+            CantidadJaulas: p.CantidadJaulas,
+            AvesPorJaula: p.AvesPorJaula,
+            TotalAves: p.TotalAves,
+            PesoBruto: p.PesoBruto
+          }))
+        );
+
+        ultimaVentaGuardada = { ...cabecera, Id: ventaId, ...c };
+        await actualizarCuadreLote();
+
+        document.getElementById("btnImprimirFactura").disabled = false;
+        alert(`¡Venta #${ventaId} procesada con éxito!\n\n${document.getElementById("lblCuadreLote").textContent}`);
+      } catch (err) {
+        btn.disabled = false;
+        alert("Error al guardar en Supabase:\n" + err.message);
+      } finally {
+        btn.textContent = "✅ Procesar Venta";
+      }
+    }
+
+    function imprimirFactura() {
+      if (!ultimaVentaGuardada) return alert("Debe procesar una venta primero para imprimir su factura.");
+      window.print();
+    }
+
+    async function cargarHistorial() {
+      try {
+        const [clientes, lotes, ventas] = await Promise.all([
+          sbGet(CONFIG.tablas.clientes, "?select=Id,Nombre"),
+          sbGet(CONFIG.tablas.lotes, "?select=Id,CodigoLote"),
+          sbGet(CONFIG.tablas.ventas, "?select=*&order=Fecha.desc")
+        ]);
+
+        clientesMap = {};
+        lotesMap = {};
+        clientes.forEach(c => { clientesMap[c.Id] = c.Nombre; });
+        lotes.forEach(l => { lotesMap[l.Id] = l.CodigoLote; });
+        ventasCache = ventas;
+
+        renderizarHistorial();
+      } catch (err) {
+        alert("Error al cargar historial:\n" + err.message);
+      }
+    }
+
+    function renderizarHistorial() {
+      const q = (document.getElementById("txtBuscarHistorial").value || "").trim().toLowerCase();
+
+      const filtradas = !q ? ventasCache : ventasCache.filter(v => {
+        const ref = (v.ReferenciaCliente || "").toLowerCase();
+        const obs = (v.Observaciones || "").toLowerCase();
+        const cli = (clientesMap[v.ClienteId] || "").toLowerCase();
+        const lote = (lotesMap[v.LoteId] || "").toLowerCase();
+        return ref.includes(q) || obs.includes(q) || cli.includes(q) || lote.includes(q);
+      });
+
+      let montoGlobal = 0;
+      document.getElementById("tbodyHistorial").innerHTML = filtradas.map(v => {
+        const bruto = Number(v.PesoBruto || 0);
+        const tara = Number(v.Tara || 0);
+        const precio = Number(v.PrecioPorLibra || 0);
+        const aves = Number(v.CantidadAves || 0);
+        const esCredito = Boolean(v.EsCredito);
+        const pesoNeto = Math.max(0, bruto - tara);
+        const montoTotal = pesoNeto * precio;
+        montoGlobal += montoTotal;
+
+        const fechaStr = v.Fecha ? new Date(v.Fecha).toLocaleString("es-DO") : "N/D";
+        const refStr = v.ReferenciaCliente || "N/D";
+        const cliStr = clientesMap[v.ClienteId] || "Cliente General";
+        const loteStr = lotesMap[v.LoteId] || "N/D";
+        const descStr = v.Observaciones || "-";
+
+        return `
+          <tr>
+            <td>${fechaStr}</td>
+            <td><strong>${refStr}</strong></td>
+            <td>${cliStr}</td>
+            <td>${loteStr}</td>
+            <td>${aves} aves</td>
+            <td>${pesoNeto.toFixed(2)} Lbs</td>
+            <td><strong>RD$ ${montoTotal.toLocaleString("es-DO", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></td>
+            <td class="${esCredito ? "badge-credito" : "badge-contado"}">${esCredito ? "Crédito" : "Contado"}</td>
+            <td>${descStr}</td>
+          </tr>
+        `;
+      }).join("");
+
+      document.getElementById("histTotalFacturas").textContent = String(filtradas.length);
+      document.getElementById("histMontoGlobal").textContent = `RD$ ${montoGlobal.toLocaleString("es-DO", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    }
+
+    cargarDatosIniciales();
+  </script>
+</body>
+</html>
